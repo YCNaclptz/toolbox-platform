@@ -40,6 +40,15 @@ builder.Configuration.AddJsonFile(
     Path.Combine(builder.Environment.ContentRootPath, "..", "appsettings.Shared.json"),
     optional: true, reloadOnChange: true);
 
+// Azure Key Vault (if VaultUri configured, overrides all other config sources)
+var vaultUri = builder.Configuration["AzureKeyVault:VaultUri"];
+if (!string.IsNullOrWhiteSpace(vaultUri))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(vaultUri),
+        new Azure.Identity.DefaultAzureCredential());
+}
+
 // SQL Server / Azure SQL
 builder.Services.AddDbContext<AuthDbContext>(options =>
     DatabaseConfiguration.ConfigureSqlServer(options, builder.Configuration));
