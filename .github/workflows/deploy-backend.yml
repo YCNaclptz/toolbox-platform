@@ -7,6 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  IMAGE_OWNER: ycnaclptz
 
 jobs:
   deploy-gateway:
@@ -26,8 +27,8 @@ jobs:
 
       - name: Build & push Gateway image
         run: |
-          IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-gateway:${{ github.sha }}
-          IMAGE_LATEST=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-gateway:latest
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-gateway:${{ github.sha }}
+          IMAGE_LATEST=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-gateway:latest
           docker build -f Gateway/Dockerfile -t $IMAGE -t $IMAGE_LATEST .
           docker push $IMAGE
           docker push $IMAGE_LATEST
@@ -42,7 +43,7 @@ jobs:
           az containerapp update \
             --name ${{ vars.CONTAINER_APP_GATEWAY }} \
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-gateway:${{ github.sha }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-gateway:${{ github.sha }}
 
   deploy-auth:
     runs-on: ubuntu-latest
@@ -61,8 +62,8 @@ jobs:
 
       - name: Build & push Auth.Api image
         run: |
-          IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-auth:${{ github.sha }}
-          IMAGE_LATEST=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-auth:latest
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-auth:${{ github.sha }}
+          IMAGE_LATEST=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-auth:latest
           docker build -f Auth.Api/Dockerfile -t $IMAGE -t $IMAGE_LATEST .
           docker push $IMAGE
           docker push $IMAGE_LATEST
@@ -77,7 +78,7 @@ jobs:
           az containerapp update \
             --name ${{ vars.CONTAINER_APP_AUTH }} \
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-auth:${{ github.sha }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-auth:${{ github.sha }}
 
   deploy-swearjar:
     runs-on: ubuntu-latest
@@ -96,8 +97,8 @@ jobs:
 
       - name: Build & push SwearJar.Api image
         run: |
-          IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-api:${{ github.sha }}
-          IMAGE_LATEST=${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-api:latest
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-api:${{ github.sha }}
+          IMAGE_LATEST=${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-api:latest
           docker build -f SwearJar.Api/Dockerfile -t $IMAGE -t $IMAGE_LATEST .
           docker push $IMAGE
           docker push $IMAGE_LATEST
@@ -112,4 +113,4 @@ jobs:
           az containerapp update \
             --name ${{ vars.CONTAINER_APP_SWEARJAR }} \
             --resource-group ${{ vars.AZURE_RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ github.repository_owner }}/toolbox-api:${{ github.sha }}
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/toolbox-api:${{ github.sha }}
