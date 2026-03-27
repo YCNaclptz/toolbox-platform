@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 
 namespace Auth.Api.Services;
 
@@ -59,5 +60,32 @@ public class AvatarStorageService
         {
             // Silently ignore deletion errors for old avatars
         }
+    }
+
+    public string? GetSasUrl(string? rawUrl)
+    {
+        if (string.IsNullOrEmpty(rawUrl)) return null;
+
+        try
+        {
+            var uri = new Uri(rawUrl);
+            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length >= 2)
+            {
+                // segments[0] = container name, segments[1..] = blob path
+                var blobName = string.Join("/", segments.Skip(1));
+                var blobClient = _container.GetBlobClient(blobName);
+                var sasUri = blobClient.GenerateSasUri(
+                    BlobSasPermissions.Read,
+                    DateTimeOffset.UtcNow.AddHours(24));
+                return sasUri.ToString();
+            }
+        }
+        catch
+        {
+            // Fallback to raw URL if SAS generation fails
+        }
+
+        return rawUrl;
     }
 }

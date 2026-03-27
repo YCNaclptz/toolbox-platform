@@ -65,7 +65,7 @@ public class AuthController(AuthDbContext db, IConfiguration config, ILogger<Aut
             config);
 
         logger.LogInformation("Login succeeded for user '{Username}' (role: {Role})", request.Username, user.Role);
-        return Ok(new LoginResponse(accessToken, refreshToken, user.DisplayName, user.Role, user.MustChangePassword, apps, user.AvatarUrl));
+        return Ok(new LoginResponse(accessToken, refreshToken, user.DisplayName, user.Role, user.MustChangePassword, apps, avatarStorage.GetSasUrl(user.AvatarUrl)));
     }
 
     [HttpPost("refresh")]
@@ -149,7 +149,7 @@ public class AuthController(AuthDbContext db, IConfiguration config, ILogger<Aut
         var user = await db.Users.FindAsync(userId);
         if (user is null) return NotFound();
 
-        return Ok(new UserProfileResponse(user.Id, user.Username, user.DisplayName, user.Email, user.AvatarUrl, user.Role, user.CreatedAt));
+        return Ok(new UserProfileResponse(user.Id, user.Username, user.DisplayName, user.Email, avatarStorage.GetSasUrl(user.AvatarUrl), user.Role, user.CreatedAt));
     }
 
     [Authorize]
@@ -189,7 +189,7 @@ public class AuthController(AuthDbContext db, IConfiguration config, ILogger<Aut
             userAppIds,
             config);
 
-        return Ok(new { token = newToken, displayName = user.DisplayName, email = user.Email, avatarUrl = user.AvatarUrl, message = "個人資料更新成功" });
+        return Ok(new { token = newToken, displayName = user.DisplayName, email = user.Email, avatarUrl = avatarStorage.GetSasUrl(user.AvatarUrl), message = "個人資料更新成功" });
     }
 
     [Authorize]
@@ -215,7 +215,7 @@ public class AuthController(AuthDbContext db, IConfiguration config, ILogger<Aut
             user.UpdatedAt = DateTime.UtcNow;
             await db.SaveChangesAsync();
 
-            return Ok(new { avatarUrl });
+            return Ok(new { avatarUrl = avatarStorage.GetSasUrl(avatarUrl) });
         }
         catch (InvalidOperationException ex)
         {
