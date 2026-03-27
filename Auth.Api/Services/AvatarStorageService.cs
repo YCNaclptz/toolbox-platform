@@ -13,7 +13,7 @@ public class AvatarStorageService
     {
         var containerName = config["AzureBlobStorage:ContainerName"] ?? "avatars";
         _container = blobServiceClient.GetBlobContainerClient(containerName);
-        _container.CreateIfNotExists(PublicAccessType.Blob);
+        _container.CreateIfNotExists();
     }
 
     public async Task<string> UploadAvatarAsync(int userId, Stream imageStream, string contentType)
